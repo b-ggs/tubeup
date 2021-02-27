@@ -19,6 +19,7 @@
 
 Usage:
   tubeup <url>... [--username <user>] [--password <pass>]
+                  [--cookies <path>]
                   [--metadata=<key:value>...]
                   [--proxy <prox>]
                   [--quiet] [--debug]
@@ -39,6 +40,7 @@ Options:
   --proxy <prox>            Use a proxy while uploading.
   --username <user>         Provide a username, for sites like Nico Nico Douga.
   --password <pass>         Provide a password, for sites like Nico Nico Douga.
+  --cookies <path>          Provide cookies to ytdl
   --use-download-archive    Record the video url to the download archive.
                             This will download only videos not listed in
                             the archive file. Record the IDs of all
@@ -68,6 +70,7 @@ def main():
     proxy_url = args['--proxy']
     username = args['--username']
     password = args['--password']
+    cookies = args['--cookies']
     quiet_mode = args['--quiet']
     debug_mode = args['--debug']
     use_download_archive = args['--use-download-archive']
@@ -93,6 +96,7 @@ def main():
     try:
         for identifier, meta in tu.archive_urls(URLs, metadata, proxy_url,
                                                 username, password,
+                                                cookies,
                                                 use_download_archive):
             print('\n:: Upload Finished. Item information:')
             print('Title: %s' % meta['title'])

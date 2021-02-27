@@ -81,7 +81,7 @@ class TubeUp(object):
         }
 
     def get_resource_basenames(self, urls, proxy_url=None, ydl_username=None,
-                               ydl_password=None, use_download_archive=False):
+                               ydl_password=None, cookiefile=None, use_download_archive=False):
         """
         Get resource basenames from an url.
 
@@ -142,7 +142,7 @@ class TubeUp(object):
                     print(msg)
 
         ydl_opts = self.generate_ydl_options(ydl_progress_hook, proxy_url,
-                                             ydl_username, ydl_password,
+                                             ydl_username, ydl_password, cookiefile,
                                              use_download_archive)
 
         with YoutubeDL(ydl_opts) as ydl:
@@ -198,6 +198,7 @@ class TubeUp(object):
                              proxy_url=None,
                              ydl_username=None,
                              ydl_password=None,
+                             cookiefile=None,
                              use_download_archive=False,
                              ydl_output_template=None):
         """
@@ -264,6 +265,9 @@ class TubeUp(object):
 
         if ydl_password is not None:
             ydl_opts['password'] = ydl_password
+
+        if cookiefile is not None:
+            ydl_opts['cookiefile'] = cookiefile
 
         if use_download_archive:
             ydl_opts['download_archive'] = os.path.join(self.dir_path['root'],
@@ -343,6 +347,7 @@ class TubeUp(object):
 
     def archive_urls(self, urls, custom_meta=None, proxy=None,
                      ydl_username=None, ydl_password=None,
+                     cookiefile=None,
                      use_download_archive=False):
         """
         Download and upload videos from youtube_dl supported sites to
@@ -365,7 +370,7 @@ class TubeUp(object):
                                       file that has been uploaded to archive.org.
         """
         downloaded_file_basenames = self.get_resource_basenames(
-            urls, proxy, ydl_username, ydl_password, use_download_archive)
+            urls, proxy, ydl_username, ydl_password, cookiefile, use_download_archive)
 
         for basename in downloaded_file_basenames:
             identifier, meta = self.upload_ia(basename, custom_meta)
