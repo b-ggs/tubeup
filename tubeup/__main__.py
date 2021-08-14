@@ -21,6 +21,7 @@ Usage:
   tubeup <url>... [--username <user>] [--password <pass>]
                   [--metadata=<key:value>...]
                   [--cookies=<filename>]
+                  [--custom-identifier=<identifier>]
                   [--proxy <prox>]
                   [--quiet] [--debug]
                   [--use-download-archive]
