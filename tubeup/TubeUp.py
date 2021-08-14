@@ -279,7 +279,7 @@ class TubeUp(object):
 
         return ydl_opts
 
-    def upload_ia(self, videobasename, custom_meta=None):
+    def upload_ia(self, videobasename, custom_meta=None, custom_identifier=None):
         """
         Upload video to archive.org.
 
@@ -302,7 +302,7 @@ class TubeUp(object):
             raise Exception(msg)
 
         # Replace illegal characters within identifer
-        itemname = sanitize_identifier(itemname)
+        itemname = custom_identifier or sanitize_identifier(itemname)
 
         metadata = self.create_archive_org_metadata_from_youtubedl_meta(
             vid_meta)
@@ -357,7 +357,7 @@ class TubeUp(object):
     def archive_urls(self, urls, custom_meta=None,
                      cookie_file=None, proxy=None,
                      ydl_username=None, ydl_password=None,
-                     use_download_archive=False):
+                     use_download_archive=False, custom_identifier=None):
         """
         Download and upload videos from youtube_dl supported sites to
         archive.org
@@ -383,7 +383,7 @@ class TubeUp(object):
             urls, cookie_file, proxy, ydl_username, ydl_password, use_download_archive)
 
         for basename in downloaded_file_basenames:
-            identifier, meta = self.upload_ia(basename, custom_meta)
+            identifier, meta = self.upload_ia(basename, custom_meta, custom_identifier)
             yield identifier, meta
 
     @staticmethod

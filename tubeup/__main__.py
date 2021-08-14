@@ -73,6 +73,7 @@ def main():
     quiet_mode = args['--quiet']
     debug_mode = args['--debug']
     use_download_archive = args['--use-download-archive']
+    custom_identifier = args['--custom-identifier']
 
     if debug_mode:
         # Display log messages.
@@ -96,7 +97,8 @@ def main():
         for identifier, meta in tu.archive_urls(URLs, metadata,
                                                 cookie_file, proxy_url,
                                                 username, password,
-                                                use_download_archive):
+                                                use_download_archive,
+                                                custom_identifier):
             print('\n:: Upload Finished. Item information:')
             print('Title: %s' % meta['title'])
             print('Upload URL: https://archive.org/details/%s\n' % identifier)
