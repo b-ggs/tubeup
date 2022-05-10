@@ -22,6 +22,7 @@ DOWNLOAD_DIR_NAME = 'downloads'
 
 
 class TubeUp(object):
+    last_known_percent = None
 
     def __init__(self,
                  verbose=False,
@@ -131,6 +132,12 @@ class TubeUp(object):
 
         def ydl_progress_hook(d):
             if d['status'] == 'downloading' and self.verbose:
+                # Little hack to just show the progress when it changes
+                percent_now = d.get('_percent_str')
+                if self.last_known_percent == percent_now:
+                    return
+                self.last_known_percent = percent_now
+
                 if d.get('_total_bytes_str') is not None:
                     msg_template = ('%(_percent_str)s of %(_total_bytes_str)s '
                                     'at %(_speed_str)s ETA %(_eta_str)s')
@@ -149,9 +156,8 @@ class TubeUp(object):
                     msg_template = ('%(_percent_str)s % at '
                                     '%(_speed_str)s ETA %(_eta_str)s')
 
-                process_msg = '\r[download] ' + (msg_template % d) + '\033[K'
-                sys.stdout.write(process_msg)
-                sys.stdout.flush()
+                process_msg = '[download] ' + (msg_template % d)
+                print(process_msg)
 
             if d['status'] == 'finished':
                 msg = '\nDownloaded %s' % d['filename']
@@ -265,6 +271,7 @@ class TubeUp(object):
             'continuedl': True,
             'retries': 9001,
             'fragment_retries': 9001,
+            'concurrent_fragment_downloads': 10,
             'forcejson': False,
             'writeinfojson': True,
             'writedescription': True,
@@ -297,7 +304,7 @@ class TubeUp(object):
 
         return ydl_opts
 
-    def upload_ia(self, videobasename, custom_meta=None):
+    def upload_ia(self, videobasename, custom_meta=None, custom_identifier=None):
         """
         Upload video to archive.org.
 
@@ -319,7 +326,8 @@ class TubeUp(object):
                 msg = 'Video download incomplete, please re-run or delete video stubs in downloads folder, exiting...'
                 raise Exception(msg)
 
-        itemname = get_itemname(vid_meta)
+        itemname = custom_identifier or get_itemname(vid_meta)
+
         metadata = self.create_archive_org_metadata_from_youtubedl_meta(
             vid_meta)
 
@@ -374,6 +382,7 @@ class TubeUp(object):
                      cookie_file=None, proxy=None,
                      ydl_username=None, ydl_password=None,
                      use_download_archive=False,
+                     custom_identifier=None,
                      ignore_existing_item=False):
         """
         Download and upload videos from youtube_dl supported sites to
@@ -401,7 +410,7 @@ class TubeUp(object):
             urls, cookie_file, proxy, ydl_username, ydl_password, use_download_archive,
             ignore_existing_item)
         for basename in downloaded_file_basenames:
-            identifier, meta = self.upload_ia(basename, custom_meta)
+            identifier, meta = self.upload_ia(basename, custom_meta, custom_identifier)
             yield identifier, meta
 
     @staticmethod
@@ -538,5 +547,16 @@ class TubeUp(object):
             metadata["channel"] = vid_meta["uploader_url"]
         elif 'channel_url' in vid_meta:
             metadata["channel"] = vid_meta["channel_url"]
+
+        if vid_meta['extractor_key'] == 'TwitchClips':
+            if vod_id := vid_meta.get('vod_id'):
+                description = description + f'<br />Twitch VOD ID: {vod_id}'
+                metadata['description'] = description
+                metadata['twitchvodid'] = vod_id
+
+            if vod_offset_seconds := vid_meta.get('vod_offset_seconds'):
+                description = description + f'<br />Twitch VOD offset (in seconds): {vod_offset_seconds}'
+                metadata['description'] = description
+                metadata['twitchvodoffsetseconds'] = vod_offset_seconds
 
         return metadata

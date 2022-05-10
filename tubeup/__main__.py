@@ -21,6 +21,7 @@ Usage:
   tubeup <url>... [--username <user>] [--password <pass>]
                   [--metadata=<key:value>...]
                   [--cookies=<filename>]
+                  [--custom-identifier=<identifier>]
                   [--proxy <prox>]
                   [--quiet] [--debug]
                   [--use-download-archive]
@@ -73,6 +74,7 @@ def main():
     quiet_mode = args['--quiet']
     debug_mode = args['--debug']
     use_download_archive = args['--use-download-archive']
+    custom_identifier = args['--custom-identifier']
     ignore_existing_item = args['--ignore-existing-item']
 
     if debug_mode:
@@ -98,6 +100,7 @@ def main():
                                                 cookie_file, proxy_url,
                                                 username, password,
                                                 use_download_archive,
+                                                custom_identifier,
                                                 ignore_existing_item):
             print('\n:: Upload Finished. Item information:')
             print('Title: %s' % meta['title'])
